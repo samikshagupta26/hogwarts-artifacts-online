@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/artifacts")
+@RequestMapping("/${spring.api.endpoint.base-url}/artifacts")
 public class ArtifactController {
 
     private final ArtifactService artifactService;
@@ -65,7 +65,4 @@ public class ArtifactController {
         this.artifactService.findById(artifactID);
         return new Result(true, StatusCode.OK, "Deleted one");
     }
-
-
-
 }
