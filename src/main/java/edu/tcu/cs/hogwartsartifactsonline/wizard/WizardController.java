@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/wizards")
+@RequestMapping("/${spring.api.endpoint.base-url}/wizards")
 public class WizardController {
 
     private final WizardService wizardService;
@@ -66,5 +66,11 @@ public class WizardController {
     public Result deleteWizard(@PathVariable Integer wizardId) {
         this.wizardService.delete(wizardId);
         return new Result(true, StatusCode.OK, "Deleted wizard");
+    }
+
+    @PutMapping("/{wizardId}/artifacts/{artifactID}")
+    public Result assignArtifact(@PathVariable Integer wizardId, @PathVariable String artifactID) {
+        this.wizardService.assignArtifact(wizardId, artifactID);
+        return new Result(true, StatusCode.OK, "Assigned artifact");
     }
 }

@@ -1,6 +1,8 @@
 package edu.tcu.cs.hogwartsartifactsonline.wizard;
 
-import org.hibernate.ObjectNotFoundException;
+import edu.tcu.cs.hogwartsartifactsonline.artifact.Artifact;
+import edu.tcu.cs.hogwartsartifactsonline.artifact.ArtifactRepository;
+import edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,9 @@ class WizardServiceTest {
 
     @Mock
     private WizardRepository wizardRepository;
+
+    @Mock
+    private ArtifactRepository artifactRepository;
 
     @InjectMocks
     private WizardService wizardService;
@@ -99,8 +104,8 @@ class WizardServiceTest {
 
         // Then
         assertThat(thrown)
-                .isInstanceOf(WizardNotFoundException.class)
-                .hasMessage("Could not find wizard with Id 1");
+                .isInstanceOf(edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException.class)
+                .hasMessage("Could not find Wizard with Id 1");
         verify(this.wizardRepository, times(1)).findById(Mockito.any(Integer.class));
     }
 
@@ -183,11 +188,86 @@ class WizardServiceTest {
         given(this.wizardRepository.findById(1)).willReturn(Optional.empty());
 
         // When
-        assertThrows(WizardNotFoundException.class, () -> {
+        assertThrows(edu.tcu.cs.hogwartsartifactsonline.system.exception.ObjectNotFoundException.class, () -> {
             this.wizardService.delete(1);
         });
 
         // Then
         verify(this.wizardRepository, times(1)).findById(1);
+    }
+
+
+    @Test
+    void testAssignArtifactSuccess() {
+//        given
+        Artifact artifact = new Artifact();
+        artifact.setId("132435");
+        artifact.setName("Passer");
+        artifact.setDescription("Description for passer");
+        artifact.setImgUrl("image url");
+
+        Wizard wizard1 = new Wizard();
+        wizard1.setName("Albus Dumbledore");
+        wizard1.setId(1);
+        wizard1.addArtifact(artifact);
+
+        Wizard wizard2 = new Wizard();
+        wizard2.setName("given");
+        wizard2.setId(2);
+
+        given(artifactRepository.findById("132435")).willReturn(Optional.of(artifact));
+        given(this.wizardRepository.findById(2)).willReturn(Optional.of(wizard2));
+//        when
+        this.wizardService.assignArtifact(2,"132435");
+
+//        then
+        assertThat(artifact.getOwner().getId()).isEqualTo(2);
+        assertThat(wizard2.getArtifacts()).contains(artifact);
+
+    }
+
+    @Test
+    void testAssignArtifactNoArtifactId() {
+//
+        given(this.artifactRepository.findById("132435")).willReturn(Optional.empty());
+//        when
+        Throwable thrown = assertThrows(ObjectNotFoundException.class, () -> {
+            this.wizardService.assignArtifact(2,"132435");
+        });
+
+//        then
+        assertThat(thrown)
+        .isInstanceOf(ObjectNotFoundException.class)
+                .hasMessage("Could not find Artifact with Id 132435");
+
+    }
+
+    @Test
+    void testAssignArtifactNoWizardId() {
+//        given
+        Artifact artifact = new Artifact();
+        artifact.setId("132435");
+        artifact.setName("Passer");
+        artifact.setDescription("Description for passer");
+        artifact.setImgUrl("image url");
+
+        Wizard wizard1 = new Wizard();
+        wizard1.setName("Albus Dumbledore");
+        wizard1.setId(1);
+        wizard1.addArtifact(artifact);
+
+
+
+        given(artifactRepository.findById("132435")).willReturn(Optional.of(artifact));
+        given(this.wizardRepository.findById(2)).willReturn(Optional.empty());
+//        when
+//        this.wizardService.assignArtifact(2,"132435");
+        Throwable thrown = assertThrows(ObjectNotFoundException.class, ()->{
+            this.wizardService.assignArtifact(2,"132435");}
+        );
+//        then
+        assertThat(thrown).isInstanceOf(ObjectNotFoundException.class)
+                        .hasMessage("Could not find Wizard with Id 2");
+        assertThat(artifact.getOwner().getId()).isEqualTo(1);
     }
 }

@@ -68,19 +68,19 @@ public class DBDataInitializer implements CommandLineRunner {
 
         Wizard w1 = new Wizard();
         w1.setName("wizard1");
-        w1.setId(1);
+//        w1.setId(1);
         w1.addArtifact(a1);
         w1.addArtifact(a3);
 
         Wizard w2 = new Wizard();
         w2.setName("wizard2");
-        w2.setId(2);
+//        w2.setId(2);
         w2.addArtifact(a2);
         w2.addArtifact(a4);
 
         Wizard w3 = new Wizard();
         w3.setName("wizard3");
-        w3.setId(3);
+//        w3.setId(3);
         w3.addArtifact(a5);
 
         wizardRepository.save(w1);
