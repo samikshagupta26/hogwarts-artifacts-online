@@ -4,6 +4,8 @@ package edu.tcu.cs.hogwartsartifactsonline.system.exception;
 import edu.tcu.cs.hogwartsartifactsonline.system.Result;
 import edu.tcu.cs.hogwartsartifactsonline.system.StatusCode;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,7 +22,7 @@ public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(ObjectNotFoundException.class)
 //    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    Result HandleObjectNotFoundException(ObjectNotFoundException ex){
+    Result HandleObjectNotFoundException(ObjectNotFoundException ex) {
         return new Result(false, StatusCode.NOT_FOUND, ex.getMessage());
     }
 
@@ -41,5 +43,11 @@ public class ExceptionHandlerAdvice {
             map.put(key, val);
         });
         return new Result(false, StatusCode.BAD_REQUEST, "Provided arguments are invalid, see data for details.", map);
+    }
+
+    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    Result handleAuthenticationNotFoundException(Exception ex) {
+        return new Result(false, StatusCode.UNAUTHORIZED, "username or password is incorrect", ex.getMessage());
     }
 }

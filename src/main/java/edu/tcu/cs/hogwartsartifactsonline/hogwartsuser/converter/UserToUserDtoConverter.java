@@ -3,7 +3,9 @@ package edu.tcu.cs.hogwartsartifactsonline.hogwartsuser.converter;
 import edu.tcu.cs.hogwartsartifactsonline.hogwartsuser.HogwartsUser;
 import edu.tcu.cs.hogwartsartifactsonline.hogwartsuser.dto.UserDto;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserToUserDtoConverter implements Converter<HogwartsUser, UserDto> {
 
     @Override
