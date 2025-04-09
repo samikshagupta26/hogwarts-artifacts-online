@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("${spring.api.endpoint.base-url}/users")
 public class UserController {
+
     private final UserService userService;
 
     private final UserDtoToUserConverter userDtoToUserConverter;
@@ -28,44 +29,50 @@ public class UserController {
     }
 
     @GetMapping
-    public Result findAllUsers(){
-        List<HogwartsUser> foundUsers = userService.findAll();
+    public Result findAllUsers() {
+        List<HogwartsUser> foundHogwartsUsers = this.userService.findAll();
 
-        List<UserDto> userDtos = foundUsers.stream()
+        // Convert foundUsers to a list of UserDtos.
+        List<UserDto> userDtos = foundHogwartsUsers.stream()
                 .map(this.userToUserDtoConverter::convert)
                 .collect(Collectors.toList());
 
-        return new Result(true, StatusCode.OK, "Found All Users", userDtos);
+        // Note that UserDto does not contain password field.
+        return new Result(true, StatusCode.OK, "Find All Success", userDtos);
     }
 
-    @GetMapping("/{id}")
-    public Result findUserById(@PathVariable Integer id){
-        HogwartsUser foundUser = userService.findById(id);
-
-        UserDto userDto = this.userToUserDtoConverter.convert(foundUser);
-        return new Result(true, StatusCode.OK, "Found User", userDto);
+    @GetMapping("/{userId}")
+    public Result findUserById(@PathVariable Integer userId) {
+        HogwartsUser foundHogwartsUser = this.userService.findById(userId);
+        UserDto userDto = this.userToUserDtoConverter.convert(foundHogwartsUser);
+        return new Result(true, StatusCode.OK, "Find One Success", userDto);
     }
 
+    /**
+     * We are not using UserDto, but User, since we require password.
+     *
+     * @param newHogwartsUser
+     * @return
+     */
     @PostMapping
-    public Result addUser(@Valid @RequestBody HogwartsUser u){
-        HogwartsUser savedUser = userService.save(u);
-        UserDto userDto = this.userToUserDtoConverter.convert(savedUser);
-
-        return new Result(true, StatusCode.OK, "Added User", userDto);
+    public Result addUser(@Valid @RequestBody HogwartsUser newHogwartsUser) {
+        HogwartsUser savedUser = this.userService.save(newHogwartsUser);
+        UserDto savedUserDto = this.userToUserDtoConverter.convert(savedUser);
+        return new Result(true, StatusCode.OK, "Add Success", savedUserDto);
     }
 
-    @PostMapping("/{userId}")
-    public Result updateUser(@PathVariable @Valid @RequestBody Integer userId, @Valid @RequestBody UserDto userDto){
-        HogwartsUser updateUser = this.userDtoToUserConverter.convert(userDto);
-        HogwartsUser updatedDto = this.userService.update(userId, updateUser);
-        UserDto updatedUserDto = this.userToUserDtoConverter.convert(updatedDto);
-
-        return new Result(true, StatusCode.OK, "Updated User", updatedUserDto);
+    @PutMapping("/{userId}")
+    public Result updateUser(@PathVariable Integer userId, @Valid @RequestBody UserDto userDto) {
+        HogwartsUser update = this.userDtoToUserConverter.convert(userDto);
+        HogwartsUser updatedHogwartsUser = this.userService.update(userId, update);
+        UserDto updatedUserDto = this.userToUserDtoConverter.convert(updatedHogwartsUser);
+        return new Result(true, StatusCode.OK, "Update Success", updatedUserDto);
     }
 
     @DeleteMapping("/{userId}")
-    public Result deleteUser(@PathVariable @Valid Integer userId){
-        HogwartsUser deleteUser = this.userService.findById(userId);
-        return new Result(true, StatusCode.OK, "Deleted User");
+    public Result deleteUser(@PathVariable Integer userId) {
+        this.userService.delete(userId);
+        return new Result(true, StatusCode.OK, "Delete Success");
     }
+
 }

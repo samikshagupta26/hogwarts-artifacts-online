@@ -12,49 +12,60 @@ import java.util.List;
 
 @Service
 @Transactional
-public class UserService  implements UserDetailsService {
+public class UserService implements UserDetailsService {
+
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
+    private PasswordEncoder passwordEncoder;
+
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<HogwartsUser> findAll(){
-        return userRepository.findAll();
+    public List<HogwartsUser> findAll() {
+        return this.userRepository.findAll();
     }
 
-    public HogwartsUser findById(Integer id) {
-        return this.userRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User", id));
+    public HogwartsUser findById(Integer userId) {
+        return this.userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("user", userId));
     }
 
-    public HogwartsUser save(HogwartsUser user) {
-        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-        return this.userRepository.save(user);
+    public HogwartsUser save(HogwartsUser newHogwartsUser) {
+        // We NEED to encode plain text password before saving to the DB! TODO
+        newHogwartsUser.setPassword(this.passwordEncoder.encode(newHogwartsUser.getPassword()));
+        return this.userRepository.save(newHogwartsUser);
     }
 
-
-    public HogwartsUser update(Integer id, HogwartsUser userUpdate) {
-        HogwartsUser oldUser = this.findById(id); // too a short cut by using a findbyid method defined up there
-
-        oldUser.setUsername(userUpdate.getUsername());
-        oldUser.setEnabled(userUpdate.isEnabled());
-        oldUser.setRoles(userUpdate.getRoles());
-
-        return this.userRepository.save(oldUser);
+    /**
+     * We are not using this update to change user password.
+     *
+     * @param userId
+     * @param update
+     * @return
+     */
+    public HogwartsUser update(Integer userId, HogwartsUser update) {
+        HogwartsUser oldHogwartsUser = this.userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("user", userId));
+        oldHogwartsUser.setUsername(update.getUsername());
+        oldHogwartsUser.setEnabled(update.isEnabled());
+        oldHogwartsUser.setRoles(update.getRoles());
+        return this.userRepository.save(oldHogwartsUser);
     }
 
-    public void delete(Integer id) {
-        this.findById(id);
-        this.userRepository.deleteById(id);
+    public void delete(Integer userId) {
+        this.userRepository.findById(userId)
+                .orElseThrow(() -> new ObjectNotFoundException("user", userId));
+        this.userRepository.deleteById(userId);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        this.userRepository.findByUserName(username)
+        return this.userRepository.findByUsername(username)
                 .map(hogwartsUser -> new MyUserPrincipal(hogwartsUser))
-                .orElseThrow(() -> new UsernameNotFoundException("User " + username + " not found"));
-        return null;
+                .orElseThrow(() -> new UsernameNotFoundException("username " + username + " is not found."));
     }
+
 }

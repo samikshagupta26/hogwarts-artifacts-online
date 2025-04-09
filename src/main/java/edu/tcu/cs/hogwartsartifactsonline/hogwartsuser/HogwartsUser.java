@@ -4,28 +4,38 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
+import java.io.Serializable;
+
 @Entity
-public class HogwartsUser {
+public class HogwartsUser implements Serializable {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @NotBlank(message = "Username is required")
+    @NotEmpty(message = "username is required.")
     private String username;
 
-    @NotEmpty(message = "password is required")
+    @NotEmpty(message = "password is required.")
     private String password;
 
     private boolean enabled;
 
-    @NotEmpty(message = "roles are required")
-    private String roles;
+    @NotEmpty(message = "roles are required.")
+    private String roles; // Space separated string
+
+
+    public HogwartsUser() {
+    }
 
     public Integer getId() {
         return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getUsername() {
@@ -59,4 +69,5 @@ public class HogwartsUser {
     public void setRoles(String roles) {
         this.roles = roles;
     }
+
 }

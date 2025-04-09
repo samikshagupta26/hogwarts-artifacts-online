@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ class UserControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    @MockitoBean
+    @MockBean
     UserService userService;
 
     List<HogwartsUser> users;
@@ -50,7 +50,7 @@ class UserControllerTest {
         this.users = new ArrayList<>();
 
         HogwartsUser u1 = new HogwartsUser();
-//        u1.setId(1);
+        u1.setId(1);
         u1.setUsername("john");
         u1.setPassword("123456");
         u1.setEnabled(true);
@@ -58,7 +58,7 @@ class UserControllerTest {
         this.users.add(u1);
 
         HogwartsUser u2 = new HogwartsUser();
-//        u2.setId(2);
+        u2.setId(2);
         u2.setUsername("eric");
         u2.setPassword("654321");
         u2.setEnabled(true);
@@ -66,7 +66,7 @@ class UserControllerTest {
         this.users.add(u2);
 
         HogwartsUser u3 = new HogwartsUser();
-//        u3.setId(3);
+        u3.setId(3);
         u3.setUsername("tom");
         u3.setPassword("qwerty");
         u3.setEnabled(false);
@@ -114,14 +114,14 @@ class UserControllerTest {
         this.mockMvc.perform(get(this.baseUrl + "/users/5").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("))
+                .andExpect(jsonPath("$.message").value("Could not find user with Id 5"))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
     @Test
     void testAddUserSuccess() throws Exception {
         HogwartsUser user = new HogwartsUser();
-//        user.setId(4);
+        user.setId(4);
         user.setUsername("lily");
         user.setPassword("123456");
         user.setEnabled(true);
@@ -129,7 +129,7 @@ class UserControllerTest {
 
         String json = this.objectMapper.writeValueAsString(user);
 
-//        user.setId(4);
+        user.setId(4);
 
         // Given. Arrange inputs and targets. Define the behavior of Mock object userService.
         given(this.userService.save(Mockito.any(HogwartsUser.class))).willReturn(user);
@@ -150,7 +150,7 @@ class UserControllerTest {
         UserDto userDto = new UserDto(3, "tom123", false, "user");
 
         HogwartsUser updatedUser = new HogwartsUser();
-//        updatedUser.setId(3);
+        updatedUser.setId(3);
         updatedUser.setUsername("tom123"); // Username is changed. It was tom.
         updatedUser.setEnabled(false);
         updatedUser.setRoles("user");
@@ -184,7 +184,7 @@ class UserControllerTest {
         this.mockMvc.perform(put(this.baseUrl + "/users/5").contentType(MediaType.APPLICATION_JSON).content(json).accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("))
+                .andExpect(jsonPath("$.message").value("Could not find user with Id 5"))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 
@@ -209,7 +209,7 @@ class UserControllerTest {
         this.mockMvc.perform(delete(this.baseUrl + "/users/5").accept(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.flag").value(false))
                 .andExpect(jsonPath("$.code").value(StatusCode.NOT_FOUND))
-                .andExpect(jsonPath("$.message").value("Could not find user with Id 5 :("))
+                .andExpect(jsonPath("$.message").value("Could not find user with Id 5"))
                 .andExpect(jsonPath("$.data").isEmpty());
     }
 

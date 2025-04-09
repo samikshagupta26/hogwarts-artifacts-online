@@ -9,21 +9,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("${spring.api.endpoint.base-url}/users")
 public class AuthController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+
     private final AuthService authService;
-    private static Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     @PostMapping("/login")
-    public Result getLoginInfo(Authentication auth) {
-        logger.debug("Authenticated user: '{}'", auth.getName());
-
-        return new Result(true, StatusCode.OK,"User info and JWT authenticated", this.authService.createLoginInfo(auth));
+    public Result getLoginInfo(Authentication authentication) {
+        LOGGER.debug("Authenticated user: '{}'", authentication.getName());
+        return new Result(true, StatusCode.OK, "User Info and JSON Web Token", this.authService.createLoginInfo(authentication));
     }
+
 }
